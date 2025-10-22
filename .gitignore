@@ -41,3 +41,5 @@ pytest_cache/
 
 # Misc
 *.bak
+aggregate.ps1
+aggregate.txt

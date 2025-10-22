@@ -1,0 +1,3 @@
+database_path: "./streamshelf.db"
+default_media_folder: "./media" # TODO: update this to use an OS-agnostic system directory instead (e.g. for windows it'd use C:/Users/Lee/StreamShelf/media)
+log_path: "./logs/streamshelf.log"
