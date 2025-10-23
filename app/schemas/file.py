@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class MediaFileRead(BaseModel):
+class FileRead(BaseModel):
   id: int
   path: str
   name: str

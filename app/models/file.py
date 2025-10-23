@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String
 from app.core.database import Base
 
 
-class MediaFile(Base):
+class File(Base):
   __tablename__ = "media_file"
 
   id = Column(Integer, primary_key=True, index=True)

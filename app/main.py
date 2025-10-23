@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from app.core.logging import setup_logging, get_logger
 from app.core.database import Base, engine
 from app.models import folder as _folder
-from app.models import media_file as _file
+from app.models import file as _file
 from app.api.v1.routes import folder
 
 setup_logging()

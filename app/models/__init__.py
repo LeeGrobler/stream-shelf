@@ -1,2 +1,2 @@
 from .folder import Folder
-from .media_file import MediaFile
+from .file import File
