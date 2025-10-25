@@ -22,7 +22,7 @@ class FolderEventHandler(FileSystemEventHandler):
 
   def on_modified(self, event):
     if not event.is_directory:
-      logger.info(f"[FolderWatcher] File modified: {event.src_path}")
+      logger.info(f"[FolderWatcher] File changed: {event.src_path}")
 
   def on_deleted(self, event):
     if not event.is_directory:
