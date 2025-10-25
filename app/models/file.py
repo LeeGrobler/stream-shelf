@@ -3,7 +3,7 @@ from app.core.database import Base
 
 
 class File(Base):
-  __tablename__ = "media_file"
+  __tablename__ = "file"
 
   id = Column(Integer, primary_key=True, index=True)
   path = Column(String, unique=True, index=True, nullable=False)
