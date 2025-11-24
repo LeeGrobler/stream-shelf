@@ -10,7 +10,7 @@ logger = get_logger()
 
 
 class FolderEventHandler(FileSystemEventHandler):
-  """Handles file system events (create, modify, delete)."""
+  """Handles file system events (create, modify, delete, move)."""
 
   def __init__(self, folder_path: Path):
     super().__init__()
@@ -27,6 +27,29 @@ class FolderEventHandler(FileSystemEventHandler):
   def on_deleted(self, event):
     if not event.is_directory:
       logger.info(f"[FolderWatcher] File deleted: {event.src_path}")
+
+  def on_moved(self, event):
+    """
+    Fired when a file is moved or renamed.
+    MovedEvent has .src_path and .dest_path attributes.
+    """
+    # some moves may be directory moves; we only care about files
+    if not event.is_directory:
+      try:
+        src = event.src_path
+        dest = event.dest_path
+      except AttributeError:
+        # defensive: older versions or unexpected events
+        src = getattr(event, "src_path", "<unknown>")
+        dest = getattr(event, "dest_path", "<unknown>")
+
+      # If src and dest are in the watched folder you might treat this as a rename.
+      logger.info(f"[FolderWatcher] File moved/renamed: {src} -> {dest}")
+
+      # Example: if you maintain a DB of files, update the record here:
+      # 1) find DB record by src
+      # 2) update path/name/folder_path to dest
+      # (DB logic not included here — perform DB operations in your app layer)
 
 
 class FolderWatcher:
