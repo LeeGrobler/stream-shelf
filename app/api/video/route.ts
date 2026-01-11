@@ -1,22 +1,27 @@
 import { readdirSync } from "fs";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+export async function POST(req: NextRequest) {
   try {
-    /*
-      TODO:
-      1. set up default directory and read its content
-      2. filter out non-video files
-      3. transform file names to pretty print
-    */
+    const { directory } = await req.json()
+    if (!directory) {
+      return NextResponse.json({
+        message: 'No directory included',
+      }, { status: 400 })
+    }
 
-    const files = readdirSync(process.cwd())
+    console.log('directory:', directory);
+
+    const videos = readdirSync(directory)
 
     return NextResponse.json({
       message: 'Videos fetched successfully',
-      files
+      directory: directory,
+      videos
     }, { status: 200 })
   } catch (error) {
+    console.log('error: ', error);
+
     return NextResponse.json({
       message: 'Video fetching failed',
       error
