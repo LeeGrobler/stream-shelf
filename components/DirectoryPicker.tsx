@@ -1,15 +1,66 @@
 'use client'
 
+import { useEffect, useState } from "react"
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
+
+interface Folder {
+  name: string;
+  parentPath: string;
+  path: string;
+}
+
 const DirectoryPicker = () => {
-  const directory = localStorage.getItem('directory')
-  if (!directory) return (
-    <main>
-      <p>Please set a media directory before proceeding.</p>
-    </main>
-  )
+  const [cwd, setCwd] = useState<string | null>(null)
+  const [folders, setFolders] = useState<Folder[] | null>(null)
+
+  useEffect(() => {
+    setCwd(localStorage.getItem('directory'))
+  }, [])
+
+  useEffect(() => {
+    const fetchFolders = async () => {
+      const response = await fetch(`${BASE_URL}/api/directory`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cwd })
+      })
+
+      if (!response.ok) throw new Error(response?.statusText || "Failed to fetch folders");
+      const data = await response.json()
+
+      // setCwd(data.cwd)
+      setFolders(data.folders)
+    }
+
+    fetchFolders()
+  }, [cwd])
+
+  const handleClick = (folder: string) => {
+    setCwd(`${cwd}${folder}/`)
+  }
+
+  const handleSelect = () => {
+    localStorage.setItem('directory', cwd as string)
+  }
 
   return (
-    <div>DirectoryPicker</div>
+    <div>
+      <div className="flex justify-between">
+        <h2>CWD: {cwd}</h2>
+        <button onClick={handleSelect}>Select Current Directory</button>
+      </div>
+
+      <div className="mt-16 grid grid-cols-4">
+        {folders?.map(folder => (
+          <button
+            key={folder.name}
+            onClick={() => handleClick(folder.name)}
+            className="text-left"
+          >{folder.name}</button>
+        ))}
+      </div>
+    </div>
   )
 }
 
