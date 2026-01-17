@@ -1,9 +1,15 @@
 'use client'
 
-const ClientBootstrap = () => {
-  console.log('TODO: implement client bootstrap');
+import { ContextProvider } from "@/store/context"
 
-  return null
+export default function ClientBootstrap({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <ContextProvider>
+      {children}
+    </ContextProvider>
+  )
 }
-
-export default ClientBootstrap

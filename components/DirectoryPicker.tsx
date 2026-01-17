@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
+import { useAppContext } from "@/store/context";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 
@@ -11,8 +12,14 @@ interface Folder {
 }
 
 const DirectoryPicker = () => {
-  const [cwd, setCwd] = useState<string | null>(null)
+  const { mediaDir, setMediaDir } = useAppContext()
+
+  // const [cwd, setCwd] = useState<string | null>(null)
   const [folders, setFolders] = useState<Folder[] | null>(null)
+
+  useEffect(() => {
+    console.log('mediaDir: ', mediaDir);
+  }, [mediaDir])
 
   useEffect(() => {
     const fetchFolders = async () => {
@@ -20,39 +27,43 @@ const DirectoryPicker = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          cwd: cwd || localStorage.getItem('directory')
+          cwd: mediaDir || localStorage.getItem('mediaDir')
         })
       })
 
       if (!response.ok) throw new Error(response?.statusText || "Failed to fetch folders");
       const data = await response.json()
 
-      setCwd(data.cwd)
+      setMediaDir(data.cwd)
       setFolders(data.folders)
     }
 
     fetchFolders()
-  }, [cwd])
+  }, [mediaDir, setMediaDir])
 
   const handleFolderClick = (folder: string) => {
-    setCwd(`${cwd}${folder}/`)
+    setMediaDir(`${mediaDir}${folder}/`)
   }
 
   const handleBackClick = () => {
-    if (!cwd) return
+    if (!mediaDir) return
 
-    const dirArr = cwd.split('/')
+    const dirArr = mediaDir.split('/')
     dirArr.splice(-2)
-    setCwd(dirArr?.join('/') + '/')
+    setMediaDir(dirArr?.join('/') + '/')
   }
 
   return (
+    // <button onClick={() => setMediaDir('/mnt/media')}>
+    //   Set media dir
+    // </button>
+
     <div>
       <div className="flex justify-between">
-        <h2>CWD: {cwd}</h2>
+        <h2>CWD: {mediaDir}</h2>
         <div className="flex gap-4">
           <button onClick={handleBackClick}>Back</button>
-          <button onClick={() => localStorage.setItem('directory', cwd as string)}>Select</button>
+          <button onClick={() => localStorage.setItem('directory', mediaDir as string)}>Select</button>
         </div>
       </div>
 
