@@ -2,7 +2,7 @@ import VideoCard from "@/components/VideoCard"
 import ContinueBtn from "@/components/ContinueBtn"
 import { videos } from "@/lib/constants"
 
-const Page = () => {
+const HomePage = () => {
   return (
     <section>
       <h1 className="text-center">Your Streaming Library<br />Reimagined</h1>
@@ -25,4 +25,4 @@ const Page = () => {
   )
 }
 
-export default Page
+export default HomePage

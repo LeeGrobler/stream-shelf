@@ -1,9 +1,7 @@
-import DirectoryPicker from "@/components/DirectoryPicker"
-
 const VideosPage = () => {
   return (
     <main>
-      <DirectoryPicker />
+      <h2>Videos</h2>
     </main>
   )
 }

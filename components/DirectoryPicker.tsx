@@ -11,24 +11,20 @@ interface Folder {
   path: string;
 }
 
-const DirectoryPicker = () => {
+const DirectoryPicker = ({
+  handleSelectClick
+}: {
+  handleSelectClick: () => void
+}) => {
   const { mediaDir, setMediaDir } = useAppContext()
-
-  // const [cwd, setCwd] = useState<string | null>(null)
   const [folders, setFolders] = useState<Folder[] | null>(null)
-
-  useEffect(() => {
-    console.log('mediaDir: ', mediaDir);
-  }, [mediaDir])
 
   useEffect(() => {
     const fetchFolders = async () => {
       const response = await fetch(`${BASE_URL}/api/directory`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cwd: mediaDir || localStorage.getItem('mediaDir')
-        })
+        body: JSON.stringify({ cwd: mediaDir })
       })
 
       if (!response.ok) throw new Error(response?.statusText || "Failed to fetch folders");
@@ -54,20 +50,12 @@ const DirectoryPicker = () => {
   }
 
   return (
-    // <button onClick={() => setMediaDir('/mnt/media')}>
-    //   Set media dir
-    // </button>
-
-    <div>
+    <div className="flex flex-col gap-8">
       <div className="flex justify-between">
-        <h2>CWD: {mediaDir}</h2>
-        <div className="flex gap-4">
-          <button onClick={handleBackClick}>Back</button>
-          <button onClick={() => localStorage.setItem('directory', mediaDir as string)}>Select</button>
-        </div>
+        <h2>{mediaDir}</h2>
       </div>
 
-      <div className="mt-16 grid grid-cols-4">
+      <div className="grid grid-cols-4">
         {folders?.map(folder => (
           <button
             key={folder.name}
@@ -75,6 +63,11 @@ const DirectoryPicker = () => {
             className="text-left"
           >{folder.name}</button>
         ))}
+      </div>
+
+      <div className="flex gap-4 justify-end">
+        <button onClick={handleBackClick}>Back</button>
+        <button onClick={handleSelectClick}>Select</button>
       </div>
     </div>
   )
