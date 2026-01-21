@@ -31,20 +31,22 @@ const VideosPage = () => {
   }, [mediaDir])
 
   return (
-    <main className="grid grid-cols-3 gap-2">
-      {videos.map(video => (
-        <video key={video.name} controls className="w-full rounded">
-          <source src={video.url} />
-          <track
-            kind="subtitles"
-            src={video.url}
-            srcLang="en"
-            label="English"
-            default
-          />
-        </video>
-      ))}
-    </main>
+    <>
+      <section className="grid grid-cols-3 gap-2">
+        {videos.map(video => (
+          <video key={video.name} controls className="w-full rounded">
+            <source src={video.url} />
+            <track
+              kind="subtitles"
+              src={video.url}
+              srcLang="en"
+              label="English"
+              default
+            />
+          </video>
+        ))}
+      </section>
+    </>
   )
 }
 

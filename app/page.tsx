@@ -1,27 +1,23 @@
-import VideoCard from "@/components/VideoCard"
-import ContinueBtn from "@/components/ContinueBtn"
-import { videos } from "@/lib/constants"
+import Link from "next/link"
+import { MdOndemandVideo } from "react-icons/md";
 
 const HomePage = () => {
   return (
-    <section>
-      <h1 className="text-center">Your Streaming Library<br />Reimagined</h1>
-      <p className="text-center mt-5">Organize, browse, and stream the videos on your PC - beautifully.</p>
+    <>
+      <section className="text-center">
+        <h1 className="text-6xl max-sm:text-4xl pb-4 to-[#94eaff] bg-linear-to-b from-white via-white
+        bg-clip-text font-semibold text-transparent"
+        >
+          Your Streaming Library<br />Reimagined
+        </h1>
+        <p className="mt-5 text-xl">Organize, browse, and stream the videos on your PC - beautifully.</p>
 
-      <ContinueBtn />
-
-      <div className="mt-20 space-y-7">
-        <h3>Continue Watching</h3>
-
-        <ul className="videos">
-          {videos.map((video) => (
-            <li key={video.title}>
-              <VideoCard {...video} />
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
+        <button className="btn mt-12 gap-2">
+          <Link href='/videos'>My Videos</Link>
+          <MdOndemandVideo className="text-2xl" />
+        </button>
+      </section>
+    </>
   )
 }
 

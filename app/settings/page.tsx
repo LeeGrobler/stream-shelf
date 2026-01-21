@@ -10,7 +10,7 @@ const SettingsPage = () => {
   const [open, setOpen] = useState(false)
 
   return (
-    <main>
+    <>
       <section className='flex justify-between'>
         Media Directory: {mediaDir}
         <button onClick={() => setOpen(true)}>Change</button>
@@ -19,7 +19,7 @@ const SettingsPage = () => {
           <DirectoryPicker handleSelectClick={() => setOpen(false)} />
         </Modal>
       </section>
-    </main>
+    </>
   )
 }
 
