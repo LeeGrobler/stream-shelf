@@ -1,7 +1,6 @@
 'use client'
 
 import { ContextProvider } from "@/store/context"
-import ClientGuard from "./client-guard"
 
 export default function ClientBootstrap({
   children,
@@ -10,9 +9,7 @@ export default function ClientBootstrap({
 }) {
   return (
     <ContextProvider>
-      <ClientGuard>
-        {children}
-      </ClientGuard>
+      {children}
     </ContextProvider>
   )
 }

@@ -1,5 +1,6 @@
 
 import { createContext, useContext, useEffect, useSyncExternalStore } from "react"
+import { usePathname, useRouter } from 'next/navigation'
 
 type Ctx = {
   mediaDir: string | null
@@ -8,7 +9,14 @@ type Ctx = {
 
 const Context = createContext<Ctx | undefined>(undefined)
 
-export function ContextProvider({ children }: { children: React.ReactNode }) {
+export function ContextProvider({
+  children
+}: {
+  children: React.ReactNode
+}) {
+  const pathname = usePathname()
+  const router = useRouter()
+
   const mediaDir = useSyncExternalStore(
     (listener: () => void) => {
       window.addEventListener("storage", listener);
@@ -19,13 +27,19 @@ export function ContextProvider({ children }: { children: React.ReactNode }) {
   )
 
   useEffect(() => {
-    if (localStorage.getItem('mediaDir') === null) {
+    if (!localStorage.getItem('mediaDir')) {
       localStorage.setItem('mediaDir', '')
       window.dispatchEvent(
         new StorageEvent('storage', { key: 'mediaDir', newValue: '' })
       )
+
+      if (pathname !== '/settings') {
+        // TODO: do a notification telling the user to set their media directory before proceeding
+        console.log('Please set your media directory before proceeding.');
+        router.push('/settings')
+      }
     }
-  }, [])
+  }, [pathname, router])
 
   const setMediaDir = (directory: string | null) => {
     if (!directory) localStorage.removeItem('mediaDir')
