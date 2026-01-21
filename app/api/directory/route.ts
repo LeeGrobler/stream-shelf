@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
+    // TODO: implement path security by defaulting to the user folder and disallowing traversing up from there
     let { cwd } = await req.json()
     if (!cwd) cwd = 'C:/'
 
