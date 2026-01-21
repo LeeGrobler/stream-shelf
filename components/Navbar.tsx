@@ -13,7 +13,7 @@ const Navbar = () => {
         <ul>
           <Link href='/'>Home</Link>
           <Link href='/videos'>Videos</Link>
-          <Link href='/'>Settings</Link>
+          <Link href='/settings'>Settings</Link>
         </ul>
       </nav>
     </header>
