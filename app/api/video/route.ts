@@ -2,7 +2,7 @@ import path from "path";
 import mime from 'mime'
 import { createReadStream, readdirSync, statSync } from "fs";
 import { NextRequest, NextResponse } from "next/server";
-import { VideosResponse } from "@/lib/types/video";
+import { Video, VideosResponse } from "@/lib/types/video";
 
 const VIDEO_EXTENSIONS = new Set(['.mp4', '.mkv', '.avi', '.mov', '.webm', '.flv', '.wmv', '.m4v'])
 
@@ -59,14 +59,20 @@ export async function POST(req: NextRequest) {
     }
 
     const entries = readdirSync(directory, { withFileTypes: true })
-    const videos = entries
+    const videos: Video[] = entries
       .filter(e => e.isFile())
       .filter(e => VIDEO_EXTENSIONS.has(path.extname(e.name).toLowerCase()))
-      .map(e => ({
-        name: e.name,
-        subs: e.name.replace(/\.[^/.]+$/, ".vtt"),
-        url: `/api/video?dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(e.name)}`
-      }))
+      .map(e => {
+        const name = e.name.split('.')[0]
+
+        return {
+          name: name,
+          link: name.toLowerCase().replaceAll(' ', '-'),
+          duration: 300,
+          url: `/api/video?dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(e.name)}`,
+          thumbUrl: `/${name}.png`
+        }
+      })
       .sort((a, b) => Number(a.name > b.name))
 
     return NextResponse.json<VideosResponse>({

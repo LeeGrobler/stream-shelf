@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useAppContext } from "@/store/context"
 import { Video, VideosResponse } from "@/lib/types/video"
+import VideoCard from "@/components/VideoCard"
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 if (!BASE_URL) throw new Error("NEXT_PUBLIC_BASE_URL not set")
@@ -32,18 +33,9 @@ const VideosPage = () => {
 
   return (
     <>
-      <section className="grid grid-cols-3 gap-2">
+      <section className="grid grid-cols-4 gap-4">
         {videos.map(video => (
-          <video key={video.name} controls className="w-full rounded">
-            <source src={video.url} />
-            <track
-              kind="subtitles"
-              src={video.url}
-              srcLang="en"
-              label="English"
-              default
-            />
-          </video>
+          <VideoCard key={video.name} {...video} />
         ))}
       </section>
     </>

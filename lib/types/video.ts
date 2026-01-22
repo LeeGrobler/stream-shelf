@@ -1,9 +1,10 @@
 export type Video = {
   // TODO: as these properties become available, start making them required
   name: string
+  link: string
+  duration: number
   url: string
-  duration?: number
-  thumbnailUrl?: string
+  thumbUrl: string
 }
 
 export type VideosSuccessResponse = {
