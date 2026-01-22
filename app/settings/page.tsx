@@ -3,10 +3,10 @@
 import { useState } from 'react'
 import DirectoryPicker from '@/components/DirectoryPicker'
 import Modal from '@/components/Modal'
-import { useAppContext } from '@/store/context'
+import { useMediaDir } from '@/store/media-dir.context'
 
 const SettingsPage = () => {
-  const { mediaDir } = useAppContext()
+  const { mediaDir } = useMediaDir()
   const [open, setOpen] = useState(false)
 
   return (

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { useAppContext } from "@/store/context";
+import { useMediaDir } from "@/store/media-dir.context";
 import { Folder } from "@/lib/types/folder";
 import { FoldersResponse } from "@/lib/types/folder";
 
@@ -13,7 +13,7 @@ type Props = Readonly<{
 }>
 
 const DirectoryPicker = ({ handleSelectClick }: Props) => {
-  const { mediaDir, setMediaDir } = useAppContext()
+  const { mediaDir, setMediaDir } = useMediaDir()
   const [folders, setFolders] = useState<Folder[] | null>(null)
 
   useEffect(() => {

@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useSyncExternalStore } from "react"
 import { usePathname, useRouter } from 'next/navigation'
 
@@ -11,10 +10,9 @@ type Props = Readonly<{
   children: React.ReactNode;
 }>
 
-
 const Context = createContext<Ctx | undefined>(undefined)
 
-export function ContextProvider({ children }: Props) {
+export function MediaDirProvider({ children }: Props) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -61,8 +59,8 @@ export function ContextProvider({ children }: Props) {
   )
 }
 
-export function useAppContext() {
+export function useMediaDir() {
   const ctx = useContext(Context)
-  if (!ctx) throw new Error('useAppContext must be used inside ContextProvider')
+  if (!ctx) throw new Error('useMediaDir must be used inside MediaDirProvider')
   return ctx
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { ContextProvider } from "@/store/context"
+import AppProviders from "@/store/providers"
 
 type Props = Readonly<{
   children: React.ReactNode;
@@ -8,8 +8,8 @@ type Props = Readonly<{
 
 export default function ClientBootstrap({ children }: Props) {
   return (
-    <ContextProvider>
+    <AppProviders>
       {children}
-    </ContextProvider>
+    </AppProviders>
   )
 }
