@@ -6,6 +6,10 @@ import LightRays from '@/components/LightRays';
 import Navbar from "@/components/Navbar";
 import ClientBootstrap from "./client-bootstrap";
 
+type Props = Readonly<{
+  children: React.ReactNode;
+}>
+
 const schibstedGrotesk = Schibsted_Grotesk({
   variable: "--font-schibsted-grotesk",
   subsets: ["latin"],
@@ -21,11 +25,7 @@ export const metadata: Metadata = {
   description: "Your local media hub.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Props) {
   return (
     <html lang="en">
       <body className={`${schibstedGrotesk.variable} ${martianMono.variable} antialiased`}>

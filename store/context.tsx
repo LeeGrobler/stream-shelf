@@ -7,13 +7,14 @@ type Ctx = {
   setMediaDir: (v: string | null) => void
 }
 
+type Props = Readonly<{
+  children: React.ReactNode;
+}>
+
+
 const Context = createContext<Ctx | undefined>(undefined)
 
-export function ContextProvider({
-  children
-}: {
-  children: React.ReactNode
-}) {
+export function ContextProvider({ children }: Props) {
   const pathname = usePathname()
   const router = useRouter()
 

@@ -11,11 +11,11 @@ interface Folder {
   path: string;
 }
 
-const DirectoryPicker = ({
-  handleSelectClick
-}: {
+type Props = Readonly<{
   handleSelectClick: () => void
-}) => {
+}>
+
+const DirectoryPicker = ({ handleSelectClick }: Props) => {
   const { mediaDir, setMediaDir } = useAppContext()
   const [folders, setFolders] = useState<Folder[] | null>(null)
 

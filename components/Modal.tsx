@@ -1,18 +1,14 @@
 import { useEffect } from 'react'
 
-export default function Modal({
-  open,
-  onClose,
-  title,
-  children,
-  buttons
-}: {
+type Props = Readonly<{
   open: boolean
   onClose: () => void
   title?: string
   children: React.ReactNode
   buttons?: React.ReactNode
-}) {
+}>
+
+export default function Modal({ open, onClose, title, children, buttons }: Props) {
   useEffect(() => {
     if (!open) return
 

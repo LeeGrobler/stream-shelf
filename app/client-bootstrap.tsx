@@ -2,11 +2,11 @@
 
 import { ContextProvider } from "@/store/context"
 
-export default function ClientBootstrap({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+type Props = Readonly<{
+  children: React.ReactNode;
+}>
+
+export default function ClientBootstrap({ children }: Props) {
   return (
     <ContextProvider>
       {children}
