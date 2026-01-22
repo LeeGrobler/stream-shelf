@@ -2,13 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { useAppContext } from "@/store/context"
+import { Video, VideosResponse } from "@/lib/types/video"
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
-
-type Video = {
-  name: string
-  url: string
-}
+if (!BASE_URL) throw new Error("NEXT_PUBLIC_BASE_URL not set")
 
 const VideosPage = () => {
   const { mediaDir } = useAppContext()
@@ -23,7 +20,10 @@ const VideosPage = () => {
       })
 
       if (!response.ok) throw new Error(response?.statusText || "Failed to fetch videos")
-      const data = await response.json()
+
+      const data: VideosResponse = await response.json()
+      if (!data.ok) throw new Error(data.message)
+
       setVideos(data.videos)
     }
 

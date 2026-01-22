@@ -2,14 +2,11 @@
 
 import { useEffect, useState } from "react"
 import { useAppContext } from "@/store/context";
+import { Folder } from "@/lib/types/folder";
+import { FoldersResponse } from "@/lib/types/folder";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
-
-interface Folder {
-  name: string;
-  parentPath: string;
-  path: string;
-}
+if (!BASE_URL) throw new Error("NEXT_PUBLIC_BASE_URL not set")
 
 type Props = Readonly<{
   handleSelectClick: () => void
@@ -28,10 +25,14 @@ const DirectoryPicker = ({ handleSelectClick }: Props) => {
       })
 
       if (!response.ok) throw new Error(response?.statusText || "Failed to fetch folders");
-      const data = await response.json()
 
-      setMediaDir(data.cwd)
+      const data: FoldersResponse = await response.json()
+      if (!data.ok) throw new Error(data.message)
+
       setFolders(data.folders)
+      if (data.cwd !== mediaDir) {
+        setMediaDir(data.cwd)
+      }
     }
 
     fetchFolders()

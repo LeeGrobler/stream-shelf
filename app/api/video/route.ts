@@ -1,7 +1,8 @@
-import { createReadStream, readdirSync, statSync } from "fs";
-import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import mime from 'mime'
+import { createReadStream, readdirSync, statSync } from "fs";
+import { NextRequest, NextResponse } from "next/server";
+import { VideosResponse } from "@/lib/types/video";
 
 const VIDEO_EXTENSIONS = new Set(['.mp4', '.mkv', '.avi', '.mov', '.webm', '.flv', '.wmv', '.m4v'])
 
@@ -51,7 +52,8 @@ export async function POST(req: NextRequest) {
   try {
     const { directory } = await req.json()
     if (!directory) {
-      return NextResponse.json({
+      return NextResponse.json<VideosResponse>({
+        ok: false,
         message: 'No directory included',
       }, { status: 400 })
     }
@@ -67,14 +69,16 @@ export async function POST(req: NextRequest) {
       }))
       .sort((a, b) => Number(a.name > b.name))
 
-    return NextResponse.json({
+    return NextResponse.json<VideosResponse>({
+      ok: true,
       message: 'Videos fetched successfully',
       videos
     }, { status: 200 })
   } catch (error) {
     console.log('error: ', error);
 
-    return NextResponse.json({
+    return NextResponse.json<VideosResponse>({
+      ok: false,
       message: 'Video fetching failed',
     }, { status: 500 })
   }

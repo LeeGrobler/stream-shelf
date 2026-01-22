@@ -1,26 +1,28 @@
 import { readdirSync } from "fs";
 import { NextRequest, NextResponse } from "next/server";
+import { FoldersResponse } from "@/lib/types/folder";
 
 export async function POST(req: NextRequest) {
   try {
     // TODO: implement path security by defaulting to the user folder and disallowing traversing up from there
-    let { cwd } = await req.json()
-    if (!cwd) cwd = 'C:/'
+    const request: { cwd: string } = await req.json()
+    if (!request.cwd) request.cwd = 'C:/'
 
-    const folders = readdirSync(cwd, { withFileTypes: true })
+    const folders = readdirSync(request.cwd, { withFileTypes: true })
       .filter(entry => entry.isDirectory());
 
-    return NextResponse.json({
+    return NextResponse.json<FoldersResponse>({
+      ok: true,
       message: 'Directories fetched successfully',
-      cwd,
+      cwd: request.cwd,
       folders
     }, { status: 200 })
   } catch (error) {
     console.log('error: ', error);
 
-    return NextResponse.json({
+    return NextResponse.json<FoldersResponse>({
+      ok: false,
       message: 'Directory fetching failed',
-      error
     }, { status: 500 })
   }
 }
