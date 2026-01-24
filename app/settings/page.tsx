@@ -1,22 +1,30 @@
 'use client'
 
 import { useState } from 'react'
-import DirectoryPicker from '@/components/DirectoryPicker'
+import DirectoryPicker, { DirectoryActions } from '@/components/DirectoryPicker'
 import Modal from '@/components/Modal'
 import { useMediaDir } from '@/store/media-dir.context'
 
 const SettingsPage = () => {
   const { mediaDir } = useMediaDir()
-  const [open, setOpen] = useState(false)
+  const [pickerActions, setPickerActions] = useState<DirectoryActions | null>(null)
 
   return (
     <>
-      <section className='flex justify-between'>
+      <section className="flex justify-between">
         Media Directory: {mediaDir}
-        <button onClick={() => setOpen(true)}>Change</button>
 
-        <Modal open={open} onClose={() => setOpen(false)} title="Set Media Directory">
-          <DirectoryPicker handleSelectClick={() => setOpen(false)} />
+        <Modal
+          openText="Change"
+          title="Set Media Directory"
+          footer={
+            <>
+              <button type="button" onClick={pickerActions?.handleBack} className="btn">Back</button>
+              <button className="btn">Done</button>
+            </>
+          }
+        >
+          <DirectoryPicker onReady={setPickerActions} />
         </Modal>
       </section>
     </>

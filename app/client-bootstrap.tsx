@@ -1,6 +1,7 @@
 'use client'
 
 import AppProviders from "@/store/providers"
+import MediaDirGuard from "./media-dir-guard";
 
 type Props = Readonly<{
   children: React.ReactNode;
@@ -9,7 +10,9 @@ type Props = Readonly<{
 export default function ClientBootstrap({ children }: Props) {
   return (
     <AppProviders>
-      {children}
+      <MediaDirGuard>
+        {children}
+      </MediaDirGuard>
     </AppProviders>
   )
 }

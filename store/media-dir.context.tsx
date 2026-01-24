@@ -1,9 +1,8 @@
-import { createContext, useContext, useEffect, useSyncExternalStore } from "react"
-import { usePathname, useRouter } from 'next/navigation'
+import { createContext, useContext, useSyncExternalStore } from 'react'
 
 type Ctx = {
   mediaDir: string | null
-  setMediaDir: (v: string | null) => void
+  setMediaDir: (v: string) => void
 }
 
 type Props = Readonly<{
@@ -12,44 +11,32 @@ type Props = Readonly<{
 
 const Context = createContext<Ctx | undefined>(undefined)
 
-export function MediaDirProvider({ children }: Props) {
-  const pathname = usePathname()
-  const router = useRouter()
+const subscribe = (listener: () => void) => {
+  window.addEventListener('storage', listener)
+  return () => window.removeEventListener('storage', listener)
+}
 
+const getSnapshot = () => {
+  const value = localStorage.getItem('mediaDir')
+
+  if (value === null) {
+    localStorage.setItem('mediaDir', '')
+    return ''
+  }
+
+  return value
+}
+
+export function MediaDirProvider({ children }: Props) {
   const mediaDir = useSyncExternalStore(
-    (listener: () => void) => {
-      window.addEventListener("storage", listener);
-      return () => void window.removeEventListener("storage", listener);
-    },
-    () => localStorage.getItem('mediaDir'),
+    subscribe,
+    getSnapshot,
     () => null
   )
 
-  useEffect(() => {
-    if (!localStorage.getItem('mediaDir')) {
-      localStorage.setItem('mediaDir', '')
-      window.dispatchEvent(
-        new StorageEvent('storage', { key: 'mediaDir', newValue: '' })
-      )
-
-      if (pathname !== '/settings') {
-        // TODO: do a notification telling the user to set their media directory before proceeding
-        console.log('Please set your media directory before proceeding.');
-        router.push('/settings')
-      }
-    }
-  }, [pathname, router])
-
-  const setMediaDir = (directory: string | null) => {
-    if (!directory) localStorage.removeItem('mediaDir')
-    else localStorage.setItem('mediaDir', directory)
-
-    window.dispatchEvent(
-      new StorageEvent('storage', {
-        key: 'mediaDir',
-        newValue: directory,
-      })
-    )
+  const setMediaDir = (directory: string) => {
+    localStorage.setItem('mediaDir', directory)
+    window.dispatchEvent(new StorageEvent('storage'))
   }
 
   return (

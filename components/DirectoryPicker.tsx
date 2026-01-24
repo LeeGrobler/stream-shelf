@@ -1,22 +1,45 @@
 'use client'
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useMediaDir } from "@/store/media-dir.context";
-import { Folder } from "@/lib/types/folder";
-import { FoldersResponse } from "@/lib/types/folder";
+import { Folder, FoldersResponse } from "@/lib/types/folder";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 if (!BASE_URL) throw new Error("NEXT_PUBLIC_BASE_URL not set")
 
+export type DirectoryActions = {
+  handleBack: () => void
+}
+
 type Props = Readonly<{
-  handleSelectClick: () => void
+  onReady?: (actions: DirectoryActions) => void
 }>
 
-const DirectoryPicker = ({ handleSelectClick }: Props) => {
+const DirectoryPicker = ({ onReady }: Props) => {
   const { mediaDir, setMediaDir } = useMediaDir()
   const [folders, setFolders] = useState<Folder[] | null>(null)
 
+  const handleFolderClick = (folder: string) => {
+    if (mediaDir === null) return
+    setMediaDir(`${mediaDir}${folder}/`)
+  }
+
+  const handleBack = useCallback(() => {
+    if (!mediaDir) return
+
+    const dirArr = mediaDir.split('/')
+    dirArr.splice(-2)
+    setMediaDir(dirArr.join('/') + '/')
+  }, [mediaDir, setMediaDir])
+
   useEffect(() => {
+    if (!onReady) return
+    onReady({ handleBack })
+  }, [onReady, handleBack])
+
+  useEffect(() => {
+    if (mediaDir === null) return
+
     const fetchFolders = async () => {
       const response = await fetch(`${BASE_URL}/api/directory`, {
         method: 'POST',
@@ -38,16 +61,8 @@ const DirectoryPicker = ({ handleSelectClick }: Props) => {
     fetchFolders()
   }, [mediaDir, setMediaDir])
 
-  const handleFolderClick = (folder: string) => {
-    setMediaDir(`${mediaDir}${folder}/`)
-  }
-
-  const handleBackClick = () => {
-    if (!mediaDir) return
-
-    const dirArr = mediaDir.split('/')
-    dirArr.splice(-2)
-    setMediaDir(dirArr?.join('/') + '/')
+  if (mediaDir === null) {
+    return <p>Loading directory…</p>
   }
 
   return (
@@ -64,11 +79,6 @@ const DirectoryPicker = ({ handleSelectClick }: Props) => {
             className="text-left"
           >{folder.name}</button>
         ))}
-      </div>
-
-      <div className="flex gap-4 justify-end">
-        <button onClick={handleBackClick}>Back</button>
-        <button onClick={handleSelectClick}>Select</button>
       </div>
     </div>
   )

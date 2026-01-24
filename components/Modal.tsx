@@ -1,51 +1,40 @@
-import { useEffect } from 'react'
-
 type Props = Readonly<{
-  open: boolean
-  onClose: () => void
-  title?: string
+  openText: string
+  title: string
   children: React.ReactNode
-  buttons?: React.ReactNode
+  footer?: React.ReactNode
 }>
 
-export default function Modal({ open, onClose, title, children, buttons }: Props) {
-  useEffect(() => {
-    if (!open) return
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+export default function Modal({
+  openText = 'Open Modal',
+  title = 'Modal',
+  children,
+  footer
+}: Props) {
+  const handleOpen = () => {
+    const modal = document.getElementById('modal')
+    if (modal instanceof HTMLDialogElement) {
+      modal.showModal()
     }
-
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [open, onClose])
-
-  if (!open) return null
+  }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-      />
+    <>
+      <button className="btn" onClick={handleOpen}>{openText}</button>
 
-      <div className="relative z-10 w-full max-w-lg rounded-xl bg-white p-6 text-gray-900 shadow-lg dark:bg-gray-900 dark:text-gray-100">
-        {title && (
-          <h2 className="mb-4 text-lg font-semibold">
-            {title}
-          </h2>
-        )}
-
-        <div className="text-sm">
+      <dialog id="modal" className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">{title}</h3>
           {children}
+          <div className="modal-action">
+            <form method="dialog">
+              {footer || <>
+                <button className="btn">Close</button>
+              </>}
+            </form>
+          </div>
         </div>
-
-        {buttons ?
-          <div className="mt-6 flex justify-end gap-2">
-            {buttons}
-          </div> : null
-        }
-      </div>
-    </div>
+      </dialog>
+    </>
   )
 }
