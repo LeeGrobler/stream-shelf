@@ -29,8 +29,6 @@ export default function RootLayout({ children }: Props) {
   return (
     <html lang="en">
       <body className={`${schibstedGrotesk.variable} ${martianMono.variable} antialiased`}>
-        <Navbar />
-
         <div className="fixed inset-0 top-0 z-[-1]">
           <LightRays
             raysOrigin="top-center-offset"
@@ -44,6 +42,8 @@ export default function RootLayout({ children }: Props) {
             distortion={0.01}
           />
         </div>
+
+        <Navbar />
 
         <main className="p-8">
           <ClientBootstrap>
