@@ -24,7 +24,7 @@ export default function Modal({
 
       <dialog id="modal" className="modal">
         <div className="modal-box">
-          <h3 className="font-bold text-lg">{title}</h3>
+          <h3 className="font-bold text-lg mb-4">{title}</h3>
           {children}
           <div className="modal-action">
             <form method="dialog">
