@@ -1,7 +1,7 @@
 'use client'
 
 import { MediaDirProvider } from "./media-dir.context"
-import { VideosProvider } from "./videos.context"
+import { VideoProvider } from "./video.context"
 
 type Props = Readonly<{
   children: React.ReactNode;
@@ -10,9 +10,9 @@ type Props = Readonly<{
 const AppProviders = ({ children }: Props) => {
   return (
     <MediaDirProvider>
-      <VideosProvider>
+      <VideoProvider>
         {children}
-      </VideosProvider>
+      </VideoProvider>
     </MediaDirProvider>
   )
 }

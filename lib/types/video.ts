@@ -1,5 +1,4 @@
 export type Video = {
-  // TODO: as these properties become available, start making them required
   name: string
   link: string
   duration: number
@@ -7,15 +6,15 @@ export type Video = {
   thumbUrl: string
 }
 
-export type VideosSuccessResponse = {
+export type VideoSuccessResponse = {
   ok: true
   message: string
   videos: Video[]
 }
 
-export type VideosErrorResponse = {
+export type VideoErrorResponse = {
   ok: false
   message: string
 }
 
-export type VideosResponse = VideosSuccessResponse | VideosErrorResponse
+export type VideoResponse = VideoSuccessResponse | VideoErrorResponse

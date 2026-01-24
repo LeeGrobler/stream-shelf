@@ -13,7 +13,7 @@ const HomePage = () => {
         <p className="mt-5 text-xl">Organize, browse, and stream the videos on your PC - beautifully.</p>
 
         <button className="btn mt-12 gap-2">
-          <Link href="/videos">My Videos</Link>
+          <Link href="/video">My Videos</Link>
           <MdOndemandVideo className="text-2xl" />
         </button>
       </section>

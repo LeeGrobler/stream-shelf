@@ -1,12 +1,14 @@
 import Image from "next/image"
 import Link from "next/link"
+
 import { Video } from "@/lib/types/video"
+import { formatDuration } from "@/lib/client/time"
 
 const VideoCard = ({ name, link, duration, thumbUrl }: Video) => {
 
   return (
     <article className="group relative rounded-lg overflow-hidden bg-neutral-900 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-      <Link href={`/videos/${link}`} className="block">
+      <Link href={`/video/${link}`} className="block">
         <div className="relative aspect-video overflow-hidden">
           <Image
             src={thumbUrl}
@@ -21,7 +23,7 @@ const VideoCard = ({ name, link, duration, thumbUrl }: Video) => {
 
           {duration && (
             <span className="absolute bottom-2 right-2 rounded bg-black/80 px-2 py-0.5 text-xs font-medium text-white">
-              {duration}
+              {formatDuration(duration)}
             </span>
           )}
         </div>
