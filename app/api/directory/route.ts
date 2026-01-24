@@ -1,6 +1,6 @@
-import { readdirSync } from "fs";
-import { NextRequest, NextResponse } from "next/server";
-import { FoldersResponse } from "@/lib/types/folder";
+import { readdirSync } from 'fs';
+import { NextRequest, NextResponse } from 'next/server';
+import { FoldersResponse } from '@/lib/types/folder';
 
 export async function POST(req: NextRequest) {
   try {

@@ -1,8 +1,8 @@
-import path from "path";
+import path from 'path';
 import mime from 'mime'
-import { createReadStream, readdirSync, statSync } from "fs";
-import { NextRequest, NextResponse } from "next/server";
-import { Video, VideosResponse } from "@/lib/types/video";
+import { createReadStream, readdirSync, statSync } from 'fs';
+import { NextRequest, NextResponse } from 'next/server';
+import { Video, VideosResponse } from '@/lib/types/video';
 
 const VIDEO_EXTENSIONS = new Set(['.mp4', '.mkv', '.avi', '.mov', '.webm', '.flv', '.wmv', '.m4v'])
 
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const file = searchParams.get('file')
 
   if (!dir || !file) {
-    return new NextResponse("Missing params", { status: 400 })
+    return new NextResponse('Missing params', { status: 400 })
   }
 
   const filePath = path.join(dir, file)
@@ -24,8 +24,8 @@ export async function GET(req: NextRequest) {
       createReadStream(filePath) as unknown as BodyInit,
       {
         headers: {
-          "Content-Type": mime.getType(filePath) ?? 'application/octet-stream',
-          "Content-Length": stat.size.toString(),
+          'Content-Type': mime.getType(filePath) ?? 'application/octet-stream',
+          'Content-Length': stat.size.toString(),
         }
       }
     )
@@ -40,10 +40,10 @@ export async function GET(req: NextRequest) {
   return new NextResponse(stream as unknown as BodyInit, {
     status: 206,
     headers: {
-      "Content-Range": `bytes ${start}-${end}/${stat.size}`,
-      "Accept-Ranges": "bytes",
-      "Content-Length": chunkSize.toString(),
-      "Content-Type": mime.getType(filePath) ?? 'application/octet-stream',
+      'Content-Range': `bytes ${start}-${end}/${stat.size}`,
+      'Accept-Ranges': 'bytes',
+      'Content-Length': chunkSize.toString(),
+      'Content-Type': mime.getType(filePath) ?? 'application/octet-stream',
     },
   })
 }

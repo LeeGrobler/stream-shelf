@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect } from "react"
-import { usePathname, useRouter } from "next/navigation"
-import { useMediaDir } from "@/store/media-dir.context"
+import { useEffect } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import { useMediaDir } from '@/store/media-dir.context'
 
 type Props = Readonly<{
   children: React.ReactNode

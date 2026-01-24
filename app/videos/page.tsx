@@ -1,7 +1,7 @@
 'use client'
 
-import VideoCard from "@/components/VideoCard"
-import { useVideos } from "@/store/videos.context"
+import VideoCard from '@/components/VideoCard'
+import { useVideos } from '@/store/videos.context'
 
 const VideosPage = () => {
   const { videos } = useVideos()

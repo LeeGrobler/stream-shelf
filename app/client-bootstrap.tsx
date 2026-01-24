@@ -1,7 +1,7 @@
 'use client'
 
-import AppProviders from "@/store/providers"
-import MediaDirGuard from "./media-dir-guard";
+import AppProviders from '@/store/providers'
+import MediaDirGuard from './media-dir-guard';
 
 type Props = Readonly<{
   children: React.ReactNode;

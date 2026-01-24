@@ -1,11 +1,11 @@
 'use client'
 
-import { useCallback, useEffect, useState } from "react"
-import { useMediaDir } from "@/store/media-dir.context";
-import { Folder, FoldersResponse } from "@/lib/types/folder";
+import { useCallback, useEffect, useState } from 'react'
+import { useMediaDir } from '@/store/media-dir.context';
+import { Folder, FoldersResponse } from '@/lib/types/folder';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
-if (!BASE_URL) throw new Error("NEXT_PUBLIC_BASE_URL not set")
+if (!BASE_URL) throw new Error('NEXT_PUBLIC_BASE_URL not set')
 
 export type DirectoryActions = {
   handleBack: () => void
@@ -47,7 +47,7 @@ const DirectoryPicker = ({ onReady }: Props) => {
         body: JSON.stringify({ cwd: mediaDir })
       })
 
-      if (!response.ok) throw new Error(response?.statusText || "Failed to fetch folders");
+      if (!response.ok) throw new Error(response?.statusText || 'Failed to fetch folders');
 
       const data: FoldersResponse = await response.json()
       if (!data.ok) throw new Error(data.message)

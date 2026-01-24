@@ -1,28 +1,28 @@
-import type { Metadata } from "next";
-import { Schibsted_Grotesk, Martian_Mono } from "next/font/google";
+import type { Metadata } from 'next';
+import { Schibsted_Grotesk, Martian_Mono } from 'next/font/google';
 
-import "./globals.css";
+import './globals.css';
 import LightRays from '@/components/LightRays';
-import Navbar from "@/components/Navbar";
-import ClientBootstrap from "./client-bootstrap";
+import Navbar from '@/components/Navbar';
+import ClientBootstrap from './client-bootstrap';
 
 type Props = Readonly<{
   children: React.ReactNode;
 }>
 
 const schibstedGrotesk = Schibsted_Grotesk({
-  variable: "--font-schibsted-grotesk",
-  subsets: ["latin"],
+  variable: '--font-schibsted-grotesk',
+  subsets: ['latin'],
 });
 
 const martianMono = Martian_Mono({
-  variable: "--font-martian-mono",
-  subsets: ["latin"],
+  variable: '--font-martian-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "StreamShelf",
-  description: "Your local media hub.",
+  title: 'StreamShelf',
+  description: 'Your local media hub.',
 };
 
 export default function RootLayout({ children }: Props) {
