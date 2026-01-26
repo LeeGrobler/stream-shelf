@@ -60,7 +60,6 @@ export function VideoProvider({ children }: Props) {
       })
 
       if (!response.ok) throw new Error(response.statusText || "Metadata generation failed")
-
       await fetchVideos()
     } catch (err) {
       console.log('err: ', err);

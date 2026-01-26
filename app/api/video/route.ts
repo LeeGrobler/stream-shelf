@@ -1,5 +1,6 @@
 import path from 'path';
 import mime from 'mime'
+import pLimit from 'p-limit';
 import { createReadStream, readdirSync, statSync } from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -22,14 +23,12 @@ export async function GET(req: NextRequest) {
 
   if (!range) {
     return new NextResponse(
-      createReadStream(filePath) as unknown as BodyInit,
-      {
-        headers: {
-          'Content-Type': mime.getType(filePath) ?? 'application/octet-stream',
-          'Content-Length': stat.size.toString(),
-        }
+      createReadStream(filePath) as unknown as BodyInit, {
+      headers: {
+        'Content-Type': mime.getType(filePath) ?? 'application/octet-stream',
+        'Content-Length': stat.size.toString(),
       }
-    )
+    })
   }
 
   const [startStr, endStr] = range.replace(/bytes=/, '').split('-')
@@ -63,23 +62,25 @@ export async function POST(req: NextRequest) {
       .filter(e => e.isFile())
       .filter(e => VIDEO_EXTENSIONS.has(path.extname(e.name).toLowerCase()))
 
-    const videos: Video[] = []
+    const limit = pLimit(5) // TODO: move this to a config file, probably
+    const videos: Video[] = await Promise.all(
+      entries.map(e =>
+        limit(async () => {
+          const name = e.name.split('.')[0]
+          const filePath = path.join(directory, e.name)
 
-    // TODO: update this for loop to `await Promise.all(entries.map(async e => { ... }))`
-    for (const e of entries) {
-      const name = e.name.split('.')[0]
-      const filePath = path.join(directory, e.name)
+          const duration = await getVideoDuration(filePath)
 
-      const duration = await getVideoDuration(filePath)
-
-      videos.push({
-        name,
-        link: name.toLowerCase().replaceAll(' ', '-'),
-        duration,
-        url: `/api/video?dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(e.name)}`,
-        thumbUrl: `/${name}.png`,
-      })
-    }
+          return {
+            name,
+            link: name.toLowerCase().replaceAll(' ', '-'),
+            duration,
+            url: `/api/video?dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(e.name)}`,
+            thumbUrl: `/${name}.png`,
+          }
+        })
+      )
+    )
 
     return NextResponse.json<VideoResponse>({
       ok: true,

@@ -4,21 +4,22 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { ensureCacheDir, loadCache, saveCache } from "@/lib/api/cache";
 import { VIDEO_EXTENSIONS } from "@/lib/constants";
-import { getVideoDuration } from "@/lib/api/ffmpeg";
-import { generateThumbnail } from "@/lib/api/thumbnail";
+import { generateThumbnail, getVideoDuration } from "@/lib/api/ffmpeg";
+import { MetadataGenerationResponse } from "@/lib/types/metadata";
+import pLimit from "p-limit";
 
 export async function POST(req: NextRequest) {
   try {
     const { directory } = await req.json()
     if (!directory) {
-      return NextResponse.json({
+      return NextResponse.json<MetadataGenerationResponse>({
         ok: false,
         message: 'Missing directory'
       }, { status: 400 })
     }
 
     if (!existsSync(directory)) {
-      return NextResponse.json({
+      return NextResponse.json<MetadataGenerationResponse>({
         ok: false,
         message: 'Directory does not exist'
       }, { status: 400 })
@@ -34,36 +35,41 @@ export async function POST(req: NextRequest) {
     let skipped = 0
     let failed = 0
 
-    for (const e of videos) {
-      const filePath = path.join(directory, e.name)
+    const limit = pLimit(5) // TODO: move this to a config file, probably
+    await Promise.all(
+      videos.map(e =>
+        limit(async () => {
+          const filePath = path.join(directory, e.name)
 
-      try {
-        const stat = statSync(filePath)
-        const cached = cache.videos[e.name]
+          try {
+            const status = statSync(filePath)
+            const cached = cache.videos[e.name]
 
-        if (cached && cached.mtime === stat.mtimeMs) {
-          skipped++
-          continue
-        }
+            if (cached?.mtime === status.mtimeMs) {
+              skipped++
+              return
+            }
 
-        const duration = await getVideoDuration(filePath)
-        const thumb = await generateThumbnail(filePath, thumbsDir, duration, e.name)
+            const duration = await getVideoDuration(filePath)
+            const thumb = await generateThumbnail(filePath, thumbsDir, duration, e.name)
 
-        cache.videos[e.name] = {
-          duration,
-          thumb,
-          mtime: stat.mtimeMs
-        }
+            cache.videos[e.name] = {
+              duration,
+              thumb,
+              mtime: status.mtimeMs
+            }
 
-        saveCache(cacheDir, cache)
-        processed++
-      } catch (err) {
-        console.log('Metadata generation failed for:', e.name, err);
-        failed++
-      }
-    }
+            saveCache(cacheDir, cache)
+            processed++
+          } catch (err) {
+            console.log('Metadata generation failed for:', e.name, err);
+            failed++
+          }
+        })
+      )
+    )
 
-    return NextResponse.json({
+    return NextResponse.json<MetadataGenerationResponse>({
       ok: true,
       processed,
       skipped,
@@ -72,7 +78,7 @@ export async function POST(req: NextRequest) {
 
   } catch (err) {
     console.log('Metadata route failed: ', err);
-    return NextResponse.json({ // TODO: update response json to an actual type
+    return NextResponse.json<MetadataGenerationResponse>({
       ok: false,
       message: 'Internal server error'
     }, { status: 500 })

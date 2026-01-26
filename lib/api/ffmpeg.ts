@@ -20,12 +20,29 @@ export async function getVideoDuration(filePath: string): Promise<number> {
   })
 }
 
-/*
-{
-  "Modern Family S09E01 Lake Life.mkv": {
-    "duration": 2080,
-    "thumb": "thumbs/modern-family-s09e01-lake-life.png",
-    "lastModified": 1700000000
-  }
+export async function generateThumbnail(
+  videoPath: string,
+  outputDir: string,
+  duration: number,
+  filename: string
+): Promise<string> {
+  const name = filename
+    .toLowerCase()
+    .replace(/\.[^/.]+$/, '')
+    .replace(/[^a-z0-9]+/g, '-')
+
+  const outputFile = `${name}.png`
+  const timestamp = Math.floor(duration * (0.1 + Math.random() * 0.7))
+
+  return new Promise((resolve, reject) => {
+    ffmpeg(videoPath)
+      .screenshots({
+        timestamps: [timestamp],
+        filename: outputFile,
+        folder: outputDir,
+        size: '320x?'
+      })
+      .on('end', () => resolve(`thumbs/${outputFile}`))
+      .on('error', reject)
+  })
 }
-*/

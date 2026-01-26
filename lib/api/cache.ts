@@ -1,6 +1,6 @@
 import path from "path";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import { Index } from "@/lib/types/cache";
+import { Index } from "@/lib/types/metadata";
 
 export function ensureCacheDir(mediaDir: string) {
   const cacheDir = path.join(mediaDir, '.ss-cache')
