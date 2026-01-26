@@ -1,9 +1,11 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { Video, VideoResponse } from '@/lib/types/video'
 import { useMediaDir } from './media-dir.context'
 
 type Ctx = {
   videos: Video[]
+  isGenerating: boolean
+  generateMetadata: () => Promise<void>
 }
 
 type Props = Readonly<{
@@ -18,28 +20,68 @@ if (!BASE_URL) throw new Error("NEXT_PUBLIC_BASE_URL not set")
 export function VideoProvider({ children }: Props) {
   const { mediaDir } = useMediaDir()
   const [videos, setVideos] = useState<Video[]>([])
+  const [isGenerating, setIsGenerating] = useState(false)
 
-  useEffect(() => {
-    const fetchVideos = async () => {
-      const response = await fetch(`${BASE_URL}/api/video`, {
+  const fetchVideos = useCallback(async () => {
+    if (!mediaDir) return
+
+    const response = await fetch(`${BASE_URL}/api/video`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ directory: mediaDir })
+    })
+
+    if (!response.ok) throw new Error(response.statusText || "Failed to fetch videos")
+    const data: VideoResponse = await response.json()
+
+    if (!data.ok) throw new Error(data.message)
+    setVideos(data.videos.map(v => ({
+      ...v,
+      status: 'ready'
+    })))
+  }, [mediaDir]);
+
+  const generateMetadata = useCallback(async () => {
+    if (!mediaDir) return
+
+    setIsGenerating(true)
+    setVideos(vs =>
+      vs.map(v => ({
+        ...v,
+        status: 'processing'
+      }))
+    )
+
+    try {
+      const response = await fetch(`${BASE_URL}/api/video/metadata`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ directory: mediaDir })
       })
 
-      if (!response.ok) throw new Error(response?.statusText || "Failed to fetch videos")
+      if (!response.ok) throw new Error(response.statusText || "Metadata generation failed")
 
-      const data: VideoResponse = await response.json()
-      if (!data.ok) throw new Error(data.message)
+      await fetchVideos()
+    } catch (err) {
+      console.log('err: ', err);
 
-      setVideos(data.videos)
+      setVideos(vs =>
+        vs.map(v => ({
+          ...v,
+          status: 'error'
+        }))
+      )
+    } finally {
+      setIsGenerating(false)
     }
+  }, [mediaDir, fetchVideos])
 
-    if (mediaDir) fetchVideos()
-  }, [mediaDir])
+  useEffect(() => {
+    fetchVideos()
+  }, [fetchVideos])
 
   return (
-    <VideoContext.Provider value={{ videos }}>
+    <VideoContext.Provider value={{ videos, isGenerating, generateMetadata }}>
       {children}
     </VideoContext.Provider>
   )

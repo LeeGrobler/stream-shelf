@@ -4,6 +4,7 @@ export type Video = {
   duration: number
   url: string
   thumbUrl: string
+  status?: 'idle' | 'processing' | 'ready' | 'error'
 }
 
 export type VideoSuccessResponse = {

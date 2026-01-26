@@ -5,8 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { Video, VideoResponse } from '@/lib/types/video';
 import { getVideoDuration } from '@/lib/api/ffmpeg';
-
-const VIDEO_EXTENSIONS = new Set(['.mp4', '.mkv', '.avi', '.mov', '.webm', '.flv', '.wmv', '.m4v'])
+import { VIDEO_EXTENSIONS } from '@/lib/constants';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)

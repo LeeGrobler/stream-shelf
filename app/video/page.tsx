@@ -7,27 +7,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 if (!BASE_URL) throw new Error("NEXT_PUBLIC_BASE_URL not set")
 
 const VideosPage = () => {
-  const { videos } = useVideo()
-
-  const handleGenerateMetadata = async () => {
-    // await fetch('/api/video/metadata', { method: 'POST' })
-
-    const response = await fetch(`${BASE_URL}/api/video/metadata`) // , {})
-    if (!response.ok) throw new Error(response?.statusText || "Failed to fetch videos")
-
-    // const response = await fetch(`${BASE_URL}/api/video`, {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ directory: mediaDir })
-    // })
-
-    // if (!response.ok) throw new Error(response?.statusText || "Failed to fetch videos")
-
-    // const data: VideoResponse = await response.json()
-    // if (!data.ok) throw new Error(data.message)
-
-    // setVideos(data.videos)
-  }
+  const { videos, isGenerating, generateMetadata } = useVideo()
 
   return (
     <section className="flex flex-col gap-6">
@@ -38,11 +18,8 @@ const VideosPage = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              className="btn btn-sm btn-primary"
-              onClick={handleGenerateMetadata}
-            >
-              Generate metadata
+            <button onClick={generateMetadata} disabled={isGenerating} className="btn btn-sm btn-primary">
+              {isGenerating ? 'Generating...' : 'Generate metadata'}
             </button>
           </div>
         </div>

@@ -4,8 +4,7 @@ import Link from "next/link"
 import { Video } from "@/lib/types/video"
 import { formatDuration } from "@/lib/client/time"
 
-const VideoCard = ({ name, link, duration, thumbUrl }: Video) => {
-
+const VideoCard = ({ name, link, duration, thumbUrl, status }: Video) => {
   return (
     <article className="group relative rounded-lg overflow-hidden bg-neutral-900 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
       <Link href={`/video/${link}`} className="block">
@@ -25,6 +24,12 @@ const VideoCard = ({ name, link, duration, thumbUrl }: Video) => {
             <span className="absolute bottom-2 right-2 rounded bg-black/80 px-2 py-0.5 text-xs font-medium text-white">
               {formatDuration(duration)}
             </span>
+          )}
+
+          {status === 'processing' && (
+            <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
+              <span className="loading loading-spinner loading-lg text-white" />
+            </div>
           )}
         </div>
 
