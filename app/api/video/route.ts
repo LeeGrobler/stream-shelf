@@ -1,12 +1,11 @@
 import path from 'path';
 import mime from 'mime'
-import pLimit from 'p-limit';
 import { createReadStream, readdirSync, statSync } from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { Video, VideoResponse } from '@/lib/types/video';
-import { getVideoDuration } from '@/lib/api/ffmpeg';
 import { VIDEO_EXTENSIONS } from '@/lib/constants';
+import { ensureCacheDir, loadCache } from '@/lib/api/cache';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -62,25 +61,29 @@ export async function POST(req: NextRequest) {
       .filter(e => e.isFile())
       .filter(e => VIDEO_EXTENSIONS.has(path.extname(e.name).toLowerCase()))
 
-    const limit = pLimit(5) // TODO: move this to a config file, probably
-    const videos: Video[] = await Promise.all(
-      entries.map(e =>
-        limit(async () => {
-          const name = e.name.split('.')[0]
-          const filePath = path.join(directory, e.name)
+    if (!entries.length) {
+      return NextResponse.json<VideoResponse>({
+        ok: false,
+        message: 'No videos found'
+      }, { status: 400 })
+    }
 
-          const duration = await getVideoDuration(filePath)
+    const { cacheDir } = ensureCacheDir(directory)
+    const cache = loadCache(cacheDir)
 
-          return {
-            name,
-            link: name.toLowerCase().replaceAll(' ', '-'),
-            duration,
-            url: `/api/video?dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(e.name)}`,
-            thumbUrl: `/${name}.png`,
-          }
-        })
-      )
-    )
+    const videos: Video[] = entries.map(e => {
+      const name = e.name.split('.')[0]
+      const slug = cache.videos?.[e.name]?.slug
+      const duration = cache.videos?.[e.name]?.duration
+
+      return {
+        name,
+        slug,
+        duration,
+        url: `/api/video?dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(e.name)}`,
+        thumbUrl: `/api/thumbnail?dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(`${slug}.png`)}`,
+      }
+    })
 
     return NextResponse.json<VideoResponse>({
       ok: true,

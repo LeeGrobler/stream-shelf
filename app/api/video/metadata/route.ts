@@ -50,12 +50,13 @@ export async function POST(req: NextRequest) {
               return
             }
 
+            const slug = e.name.toLowerCase().replace(/\.[^/.]+$/, '').replace(/[^a-z0-9]+/g, '-')
             const duration = await getVideoDuration(filePath)
-            const thumb = await generateThumbnail(filePath, thumbsDir, duration, e.name)
+            await generateThumbnail(filePath, thumbsDir, duration, slug)
 
             cache.videos[e.name] = {
               duration,
-              thumb,
+              slug,
               mtime: status.mtimeMs
             }
 

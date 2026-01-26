@@ -1,6 +1,6 @@
 export type Video = {
   name: string
-  link: string
+  slug: string
   duration: number
   url: string
   thumbUrl: string

@@ -24,14 +24,9 @@ export async function generateThumbnail(
   videoPath: string,
   outputDir: string,
   duration: number,
-  filename: string
+  slug: string
 ): Promise<string> {
-  const name = filename
-    .toLowerCase()
-    .replace(/\.[^/.]+$/, '')
-    .replace(/[^a-z0-9]+/g, '-')
-
-  const outputFile = `${name}.png`
+  const outputFile = `${slug}.png`
   const timestamp = Math.floor(duration * (0.1 + Math.random() * 0.7))
 
   return new Promise((resolve, reject) => {
@@ -42,7 +37,7 @@ export async function generateThumbnail(
         folder: outputDir,
         size: '320x?'
       })
-      .on('end', () => resolve(`thumbs/${outputFile}`))
+      .on('end', () => resolve(outputFile))
       .on('error', reject)
   })
 }
