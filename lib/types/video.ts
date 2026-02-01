@@ -1,9 +1,10 @@
 export type Video = {
   name: string
   slug: string
-  duration: number
+  durationSeconds: number
   url: string
   thumbUrl: string
+  previewUrl: string
   status?: 'idle' | 'processing' | 'ready' | 'error'
 }
 

@@ -1,5 +1,5 @@
 type VideoMetadata = {
-  duration: number
+  durationSeconds: number
   slug: string
   mtime: number
 }

@@ -1,7 +1,9 @@
 // TODO: move cache to ~/.streamshelf/cache
 
+import path from 'path';
 import ffmpeg from 'fluent-ffmpeg';
 import ffprobeInstaller from '@ffprobe-installer/ffprobe';
+import { getEvenTimestamps } from '../client/time';
 
 ffmpeg.setFfprobePath(ffprobeInstaller.path);
 
@@ -20,24 +22,61 @@ export async function getVideoDuration(filePath: string): Promise<number> {
   })
 }
 
-export async function generateThumbnail(
+export async function generateThumbnails(
   videoPath: string,
   outputDir: string,
-  duration: number,
+  durationSeconds: number,
   slug: string
-): Promise<string> {
-  const outputFile = `${slug}.png`
-  const timestamp = Math.floor(duration * (0.1 + Math.random() * 0.7))
+) {
+  const timestamps = getEvenTimestamps(durationSeconds, 150)
 
   return new Promise((resolve, reject) => {
     ffmpeg(videoPath)
+      .inputOptions([
+        '-skip_frame nokey',
+        '-threads 2',
+        '-analyzeduration 0',
+        '-probesize 32k'
+      ])
+      .outputOptions([
+        '-filter_threads 2'
+      ])
       .screenshots({
-        timestamps: [timestamp],
-        filename: outputFile,
+        timestamps,
+        filename: slug,
         folder: outputDir,
         size: '320x?'
       })
-      .on('end', () => resolve(outputFile))
+      .on('end', resolve)
+      .on('error', (err) => {
+        console.log(`thumbnail generation failed | ${slug}:`, err);
+        reject()
+      })
+  })
+}
+
+export async function generatePreview(
+  thumbsDir: string,
+  outputDir: string,
+  slug: string
+) {
+  const outputFile = `${slug}.mp4`
+
+  return new Promise((resolve, reject) => {
+    ffmpeg()
+      .input(path.join(thumbsDir, `${slug}_%d.png`))
+      .inputOptions([
+        '-start_number 1',
+        '-framerate 2',
+        '-threads 2'
+      ])
+      .outputOptions([
+        '-threads 2',
+        '-pix_fmt yuv420p',
+        '-movflags +faststart'
+      ])
+      .on('end', resolve)
       .on('error', reject)
+      .save(path.join(outputDir, outputFile))
   })
 }

@@ -4,11 +4,17 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { ensureCacheDir, loadCache, saveCache } from "@/lib/api/cache";
 import { VIDEO_EXTENSIONS } from "@/lib/constants";
-import { generateThumbnail, getVideoDuration } from "@/lib/api/ffmpeg";
+import { generatePreview, generateThumbnails, getVideoDuration } from "@/lib/api/ffmpeg";
 import { MetadataGenerationResponse } from "@/lib/types/metadata";
 import pLimit from "p-limit";
 
 export async function POST(req: NextRequest) {
+  // TODO: rework this whole thing, i hate it.
+  // we need a clear cache button too that just drops .ss-cache
+  // it shouldn't skip generation just because the json mtime number hasn't changed
+  // implement mvc services, these routes are getting silly long
+  // implement real-time updates
+
   try {
     const { directory } = await req.json()
     if (!directory) {
@@ -25,7 +31,7 @@ export async function POST(req: NextRequest) {
       }, { status: 400 })
     }
 
-    const { cacheDir, thumbsDir } = ensureCacheDir(directory)
+    const { cacheDir, thumbsDir, previewDir } = ensureCacheDir(directory)
     const cache = loadCache(cacheDir)
     const videos = readdirSync(directory, { withFileTypes: true })
       .filter(e => e.isFile())
@@ -51,11 +57,13 @@ export async function POST(req: NextRequest) {
             }
 
             const slug = e.name.toLowerCase().replace(/\.[^/.]+$/, '').replace(/[^a-z0-9]+/g, '-')
-            const duration = await getVideoDuration(filePath)
-            await generateThumbnail(filePath, thumbsDir, duration, slug)
+            const durationSeconds = await getVideoDuration(filePath)
+
+            await generateThumbnails(filePath, thumbsDir, durationSeconds, slug)
+            generatePreview(thumbsDir, previewDir, slug)
 
             cache.videos[e.name] = {
-              duration,
+              durationSeconds,
               slug,
               mtime: status.mtimeMs
             }

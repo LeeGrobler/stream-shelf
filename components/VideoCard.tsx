@@ -1,27 +1,46 @@
-import Image from "next/image"
+// import Image from "next/image"
+import { useRef, useState } from "react"
 import Link from "next/link"
 
 import { Video } from "@/lib/types/video"
 import { formatDuration } from "@/lib/client/time"
 
-const VideoCard = ({ name, slug, duration, thumbUrl, status }: Video) => {
+const VideoCard = ({ name, slug, durationSeconds, thumbUrl, previewUrl, status }: Video) => {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [previewAvailable, setPreviewAvailable] = useState(true)
+
+  const onEnter = () => {
+    if (!previewAvailable || !videoRef.current) return
+    videoRef.current.currentTime = 0
+    videoRef.current.play().catch(() => { })
+  }
+
+  const onLeave = () => {
+    if (!videoRef.current) return
+    videoRef.current.pause()
+    videoRef.current.currentTime = 0
+  }
+
   return (
     <article className="group relative rounded-lg overflow-hidden bg-neutral-900 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
       <Link href={`/video/${slug}`} className="block">
-        <div className="relative aspect-video overflow-hidden">
-          <Image
-            src={thumbUrl}
-            alt={name}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            loading="eager"
-            unoptimized
+        <div onMouseEnter={onEnter} onMouseLeave={onLeave} className="relative aspect-video overflow-hidden">
+          <video
+            ref={videoRef}
+            src={previewUrl}
+            poster={thumbUrl}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="h-full w-full object-cover rounded-lg"
+            onError={() => setPreviewAvailable(false)}
           />
 
           <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent opacity-80" />
 
           <span className="absolute bottom-2 right-2 rounded bg-black/80 px-2 py-0.5 text-xs font-medium text-white">
-            {duration ? formatDuration(duration) : '?'}
+            {durationSeconds ? formatDuration(durationSeconds) : '?'}
           </span>
 
           {status === 'processing' && (
@@ -35,6 +54,12 @@ const VideoCard = ({ name, slug, duration, thumbUrl, status }: Video) => {
           <h3 className="line-clamp-2 text-sm font-medium text-white">
             {name}
           </h3>
+
+          {!previewAvailable && (
+            <span className="absolute bottom-2 right-2 text-xs opacity-60">
+              preview pending
+            </span>
+          )}
         </div>
       </Link>
     </article>

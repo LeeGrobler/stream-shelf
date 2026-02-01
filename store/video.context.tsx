@@ -31,6 +31,7 @@ export function VideoProvider({ children }: Props) {
       body: JSON.stringify({ directory: mediaDir })
     })
 
+    // TODO: this is currently throwing an error when changing directory. fix.
     if (!response.ok) throw new Error(response.statusText || "Failed to fetch videos")
     const data: VideoResponse = await response.json()
 

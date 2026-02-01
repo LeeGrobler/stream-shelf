@@ -5,9 +5,12 @@ import { Index } from "@/lib/types/metadata";
 export function ensureCacheDir(mediaDir: string) {
   const cacheDir = path.join(mediaDir, '.ss-cache')
   const thumbsDir = path.join(cacheDir, 'thumbs')
+  const previewDir = path.join(cacheDir, 'previews')
 
   mkdirSync(thumbsDir, { recursive: true })
-  return { cacheDir, thumbsDir }
+  mkdirSync(previewDir, { recursive: true })
+
+  return { cacheDir, thumbsDir, previewDir }
 }
 
 export function loadCache(cacheDir: string): Index {

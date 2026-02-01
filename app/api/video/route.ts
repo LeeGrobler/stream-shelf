@@ -1,6 +1,6 @@
 import path from 'path';
 import mime from 'mime'
-import { createReadStream, readdirSync, statSync } from 'fs';
+import { createReadStream, existsSync, readdirSync, statSync } from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { Video, VideoResponse } from '@/lib/types/video';
@@ -11,12 +11,20 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const dir = searchParams.get('dir')
   const file = searchParams.get('file')
+  const preview = Boolean(searchParams.get('preview'))
 
   if (!dir || !file) {
     return new NextResponse('Missing params', { status: 400 })
   }
 
-  const filePath = path.join(dir, file)
+  const filePath = preview
+    ? path.join(`${dir}/.ss-cache/previews`, `${file}.mp4`)
+    : path.join(dir, file)
+
+  if (!existsSync(filePath)) {
+    return new NextResponse('File does not exist', { status: 404 })
+  }
+
   const stat = statSync(filePath)
   const range = req.headers.get('range')
 
@@ -30,21 +38,26 @@ export async function GET(req: NextRequest) {
     })
   }
 
-  const [startStr, endStr] = range.replace(/bytes=/, '').split('-')
-  const start = parseInt(startStr, 10)
-  const end = endStr ? parseInt(endStr, 10) : stat.size - 1
-  const chunkSize = end - start + 1
-  const stream = createReadStream(filePath, { start, end })
+  try {
+    const [startStr, endStr] = range.replace(/bytes=/, '').split('-')
+    const start = parseInt(startStr, 10)
+    const end = endStr ? parseInt(endStr, 10) : stat.size - 1
+    const chunkSize = end - start + 1
+    const stream = createReadStream(filePath, { start, end })
 
-  return new NextResponse(stream as unknown as BodyInit, {
-    status: 206,
-    headers: {
-      'Content-Range': `bytes ${start}-${end}/${stat.size}`,
-      'Accept-Ranges': 'bytes',
-      'Content-Length': chunkSize.toString(),
-      'Content-Type': mime.getType(filePath) ?? 'application/octet-stream',
-    },
-  })
+    return new NextResponse(stream as unknown as BodyInit, {
+      status: 206,
+      headers: {
+        'Content-Range': `bytes ${start}-${end}/${stat.size}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunkSize.toString(),
+        'Content-Type': mime.getType(filePath) ?? 'application/octet-stream',
+      },
+    })
+  } catch (err) {
+    console.log('error: ', err);
+    return new NextResponse('Failed to stream video', { status: 500 })
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -74,14 +87,15 @@ export async function POST(req: NextRequest) {
     const videos: Video[] = entries.map(e => {
       const name = e.name.split('.')[0]
       const slug = cache.videos?.[e.name]?.slug
-      const duration = cache.videos?.[e.name]?.duration
+      const durationSeconds = cache.videos?.[e.name]?.durationSeconds
 
       return {
         name,
         slug,
-        duration,
+        durationSeconds,
         url: `/api/video?dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(e.name)}`,
-        thumbUrl: `/api/thumbnail?dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(`${slug}.png`)}`,
+        thumbUrl: `/api/thumbnail?dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(`${slug}_1.png`)}`,
+        previewUrl: `/api/video?preview=true&dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(slug)}`,
       }
     })
 
@@ -90,8 +104,8 @@ export async function POST(req: NextRequest) {
       message: 'Videos fetched successfully',
       videos
     }, { status: 200 })
-  } catch (error) {
-    console.log('error: ', error);
+  } catch (err) {
+    console.log('error: ', err);
 
     return NextResponse.json<VideoResponse>({
       ok: false,
