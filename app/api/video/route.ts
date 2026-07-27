@@ -85,17 +85,21 @@ export async function POST(req: NextRequest) {
     const cache = loadCache(cacheDir)
 
     const videos: Video[] = entries.map(e => {
+      const filePath = path.join(directory, e.name)
+      const fileStats = statSync(filePath)
       const name = e.name.split('.')[0]
       const slug = cache.videos?.[e.name]?.slug
       const durationSeconds = cache.videos?.[e.name]?.durationSeconds
 
       return {
         name,
+        fileName: e.name,
         slug,
         durationSeconds,
         url: `/api/video?dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(e.name)}`,
         thumbUrl: `/api/thumbnail?dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(`${slug}_1.png`)}`,
         previewUrl: `/api/video?preview=true&dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(slug)}`,
+        addedAt: fileStats.birthtimeMs ?? fileStats.ctimeMs,
       }
     })
 

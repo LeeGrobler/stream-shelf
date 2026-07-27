@@ -1,10 +1,12 @@
 export type Video = {
   name: string
+  fileName: string
   slug: string
   durationSeconds: number
   url: string
   thumbUrl: string
   previewUrl: string
+  addedAt?: number
   status?: 'idle' | 'processing' | 'ready' | 'error'
 }
 

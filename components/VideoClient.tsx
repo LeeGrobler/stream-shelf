@@ -14,7 +14,7 @@ const VideoClient = ({ slug }: Props) => {
 
   return (
     <div>
-      <video key={video.name} controls>
+      <video key={video.fileName} controls>
         <source src={video.url} />
       </video>
 
