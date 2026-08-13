@@ -1,17 +1,45 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import VideoCard from '@/components/VideoCard'
 import { useVideo } from '@/store/video.context'
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 if (!BASE_URL) throw new Error("NEXT_PUBLIC_BASE_URL not set")
 
+const STORAGE_KEYS = {
+  query: 'videos.searchQuery',
+  sortBy: 'videos.sortBy',
+  sortDirection: 'videos.sortDirection',
+}
+
+const getStoredSortBy = (): 'name' | 'dateAdded' => {
+  const value = localStorage.getItem(STORAGE_KEYS.sortBy)
+  return value === 'dateAdded' ? 'dateAdded' : 'name'
+}
+
+const getStoredSortDirection = (): 'asc' | 'desc' => {
+  const value = localStorage.getItem(STORAGE_KEYS.sortDirection)
+  return value === 'desc' ? 'desc' : 'asc'
+}
+
 const VideosPage = () => {
   const { videos, isGenerating, generateMetadata } = useVideo()
-  const [query, setQuery] = useState('')
-  const [sortBy, setSortBy] = useState<'name' | 'dateAdded'>('name')
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+  const [query, setQuery] = useState(() => localStorage.getItem(STORAGE_KEYS.query) ?? '')
+  const [sortBy, setSortBy] = useState<'name' | 'dateAdded'>(getStoredSortBy)
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(getStoredSortDirection)
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.query, query)
+  }, [query])
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.sortBy, sortBy)
+  }, [sortBy])
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.sortDirection, sortDirection)
+  }, [sortDirection])
 
   const visibleVideos = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
