@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Video } from "@/lib/types/video"
 import { formatDuration } from "@/lib/client/time"
 
-const VideoCard = ({ name, slug, durationSeconds, thumbUrl, previewUrl, status }: Video) => {
+const VideoCard = ({ name, slug, durationSeconds, thumbUrl, previewUrl, status, fileName }: Video) => {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [previewAvailable, setPreviewAvailable] = useState(true)
 
@@ -22,7 +22,7 @@ const VideoCard = ({ name, slug, durationSeconds, thumbUrl, previewUrl, status }
   }
 
   return (
-    <article className="group relative rounded-lg overflow-hidden bg-neutral-900 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+    <article title={fileName} className="group relative rounded-lg overflow-hidden bg-neutral-900 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
       <Link href={`/video/${slug}`} className="block">
         <div onMouseEnter={onEnter} onMouseLeave={onLeave} className="relative aspect-video overflow-hidden">
           <video
