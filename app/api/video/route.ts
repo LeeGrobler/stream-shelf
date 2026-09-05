@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
       const fileStats = statSync(filePath)
       const name = e.name.split('.')[0]
       const id = getVideoId(e.name)
-      const durationSeconds = cache.videos?.[e.name]?.durationSeconds
+      const durationSeconds = cache.videos?.[id]?.durationSeconds
 
       return {
         id,

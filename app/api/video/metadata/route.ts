@@ -49,8 +49,8 @@ export async function POST(req: NextRequest) {
 
           try {
             const status = statSync(filePath)
-            const cached = cache.videos[e.name]
             const id = getVideoId(e.name)
+            const cached = cache.videos[id]
             const thumbPath = path.join(thumbsDir, `${id}_1.png`)
             const previewPath = path.join(previewDir, `${id}.mp4`)
 
@@ -66,7 +66,8 @@ export async function POST(req: NextRequest) {
             await generateThumbnails(filePath, thumbsDir, durationSeconds, id)
             generatePreview(thumbsDir, previewDir, id)
 
-            cache.videos[e.name] = {
+            cache.videos[id] = {
+              fileName: e.name,
               durationSeconds,
               mtime: status.mtimeMs
             }

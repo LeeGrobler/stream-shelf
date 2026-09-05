@@ -19,24 +19,32 @@ export function loadCache(cacheDir: string): Index {
 
   if (!existsSync(index)) {
     return {
-      version: 1,
+      version: 2,
       videos: {}
     }
   }
 
   const parsed = JSON.parse(readFileSync(index, 'utf-8')) as {
-    videos?: Record<string, Partial<Index['videos'][string]>>
+    videos?: Record<string, {
+      fileName?: unknown
+      durationSeconds?: unknown
+      mtime?: unknown
+    }>
   }
 
   return {
-    version: 1,
+    version: 2,
     videos: Object.fromEntries(
-      Object.entries(parsed.videos ?? {}).flatMap(([fileName, video]) => {
+      Object.entries(parsed.videos ?? {}).flatMap(([key, video]) => {
         if (typeof video.durationSeconds !== 'number' || typeof video.mtime !== 'number') {
           return []
         }
 
-        return [[fileName, {
+        const fileName = typeof video.fileName === 'string' ? video.fileName : key
+        const id = getVideoId(fileName)
+
+        return [[id, {
+          fileName,
           durationSeconds: video.durationSeconds,
           mtime: video.mtime
         }]]
@@ -47,7 +55,7 @@ export function loadCache(cacheDir: string): Index {
 
 export function saveCache(cacheDir: string, cache: Index) {
   const index = path.join(cacheDir, 'index.json')
-  writeFileSync(index, JSON.stringify(cache))
+  writeFileSync(index, JSON.stringify(cache, null, 2))
 }
 
 export function getVideoId(fileName: string) {

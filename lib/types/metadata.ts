@@ -1,10 +1,11 @@
 type VideoMetadata = {
+  fileName: string
   durationSeconds: number
   mtime: number
 }
 
 export type Index = {
-  version: 1
+  version: 2
   videos: Record<string, VideoMetadata>
 }
 
