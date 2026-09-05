@@ -2,7 +2,7 @@ import path from "path";
 import { existsSync, readdirSync, statSync } from "fs";
 import { NextRequest, NextResponse } from "next/server";
 
-import { ensureCacheDir, loadCache, saveCache } from "@/lib/api/cache";
+import { ensureCacheDir, getVideoId, loadCache, saveCache } from "@/lib/api/cache";
 import { VIDEO_EXTENSIONS } from "@/lib/constants";
 import { generatePreview, generateThumbnails, getVideoDuration } from "@/lib/api/ffmpeg";
 import { MetadataGenerationResponse } from "@/lib/types/metadata";
@@ -50,21 +50,24 @@ export async function POST(req: NextRequest) {
           try {
             const status = statSync(filePath)
             const cached = cache.videos[e.name]
+            const id = getVideoId(e.name)
+            const thumbPath = path.join(thumbsDir, `${id}_1.png`)
+            const previewPath = path.join(previewDir, `${id}.mp4`)
 
-            if (cached?.mtime === status.mtimeMs) {
+            if (cached?.mtime === status.mtimeMs && existsSync(thumbPath) && existsSync(previewPath)) {
               skipped++
               return
             }
 
-            const slug = e.name.toLowerCase().replace(/\.[^/.]+$/, '').replace(/[^a-z0-9]+/g, '-')
-            const durationSeconds = await getVideoDuration(filePath)
+            const durationSeconds = cached?.mtime === status.mtimeMs
+              ? cached.durationSeconds
+              : await getVideoDuration(filePath)
 
-            await generateThumbnails(filePath, thumbsDir, durationSeconds, slug)
-            generatePreview(thumbsDir, previewDir, slug)
+            await generateThumbnails(filePath, thumbsDir, durationSeconds, id)
+            generatePreview(thumbsDir, previewDir, id)
 
             cache.videos[e.name] = {
               durationSeconds,
-              slug,
               mtime: status.mtimeMs
             }
 
@@ -77,6 +80,8 @@ export async function POST(req: NextRequest) {
         })
       )
     )
+
+    saveCache(cacheDir, cache)
 
     return NextResponse.json<MetadataGenerationResponse>({
       ok: true,

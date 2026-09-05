@@ -1,4 +1,5 @@
 import path from "path";
+import { createHash } from "crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { Index } from "@/lib/types/metadata";
 
@@ -23,10 +24,32 @@ export function loadCache(cacheDir: string): Index {
     }
   }
 
-  return JSON.parse(readFileSync(index, 'utf-8'))
+  const parsed = JSON.parse(readFileSync(index, 'utf-8')) as {
+    videos?: Record<string, Partial<Index['videos'][string]>>
+  }
+
+  return {
+    version: 1,
+    videos: Object.fromEntries(
+      Object.entries(parsed.videos ?? {}).flatMap(([fileName, video]) => {
+        if (typeof video.durationSeconds !== 'number' || typeof video.mtime !== 'number') {
+          return []
+        }
+
+        return [[fileName, {
+          durationSeconds: video.durationSeconds,
+          mtime: video.mtime
+        }]]
+      })
+    )
+  }
 }
 
 export function saveCache(cacheDir: string, cache: Index) {
   const index = path.join(cacheDir, 'index.json')
   writeFileSync(index, JSON.stringify(cache))
+}
+
+export function getVideoId(fileName: string) {
+  return createHash('sha256').update(fileName).digest('base64url').slice(0, 16)
 }

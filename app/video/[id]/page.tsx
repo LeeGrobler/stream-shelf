@@ -1,13 +1,13 @@
 import VideoClient from "@/components/VideoClient"
 
 type Props = {
-  params: Promise<{ slug: string }>
+  params: Promise<{ id: string }>
 }
 
 const VideoPage = async ({ params }: Props) => {
-  const { slug } = await params
+  const { id } = await params
 
-  return <VideoClient slug={slug} />
+  return <VideoClient id={id} />
 }
 
 export default VideoPage

@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { Video, VideoResponse } from '@/lib/types/video';
 import { VIDEO_EXTENSIONS } from '@/lib/constants';
-import { ensureCacheDir, loadCache } from '@/lib/api/cache';
+import { ensureCacheDir, getVideoId, loadCache } from '@/lib/api/cache';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -88,17 +88,17 @@ export async function POST(req: NextRequest) {
       const filePath = path.join(directory, e.name)
       const fileStats = statSync(filePath)
       const name = e.name.split('.')[0]
-      const slug = cache.videos?.[e.name]?.slug
+      const id = getVideoId(e.name)
       const durationSeconds = cache.videos?.[e.name]?.durationSeconds
 
       return {
+        id,
         name,
         fileName: e.name,
-        slug,
         durationSeconds,
         url: `/api/video?dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(e.name)}`,
-        thumbUrl: `/api/thumbnail?dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(`${slug}_1.png`)}`,
-        previewUrl: `/api/video?preview=true&dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(slug)}`,
+        thumbUrl: `/api/thumbnail?dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(`${id}_1.png`)}`,
+        previewUrl: `/api/video?preview=true&dir=${encodeURIComponent(directory)}&file=${encodeURIComponent(id)}`,
         addedAt: fileStats.birthtimeMs ?? fileStats.ctimeMs,
       }
     })

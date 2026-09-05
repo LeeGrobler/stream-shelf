@@ -26,7 +26,7 @@ export async function generateThumbnails(
   videoPath: string,
   outputDir: string,
   durationSeconds: number,
-  slug: string
+  cacheBasename: string
 ) {
   const timestamps = getEvenTimestamps(durationSeconds, 150)
 
@@ -43,13 +43,13 @@ export async function generateThumbnails(
       ])
       .screenshots({
         timestamps,
-        filename: slug,
+        filename: cacheBasename,
         folder: outputDir,
         size: '320x?'
       })
       .on('end', resolve)
       .on('error', (err) => {
-        console.log(`thumbnail generation failed | ${slug}:`, err);
+        console.log(`thumbnail generation failed | ${cacheBasename}:`, err);
         reject()
       })
   })
@@ -58,13 +58,13 @@ export async function generateThumbnails(
 export async function generatePreview(
   thumbsDir: string,
   outputDir: string,
-  slug: string
+  cacheBasename: string
 ) {
-  const outputFile = `${slug}.mp4`
+  const outputFile = `${cacheBasename}.mp4`
 
   return new Promise((resolve, reject) => {
     ffmpeg()
-      .input(path.join(thumbsDir, `${slug}_%d.png`))
+      .input(path.join(thumbsDir, `${cacheBasename}_%d.png`))
       .inputOptions([
         '-start_number 1',
         '-framerate 2',

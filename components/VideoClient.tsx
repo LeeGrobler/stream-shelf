@@ -3,12 +3,12 @@
 import { useVideo } from '@/store/video.context'
 
 type Props = {
-  slug: string
+  id: string
 }
 
-const VideoClient = ({ slug }: Props) => {
+const VideoClient = ({ id }: Props) => {
   const { videos } = useVideo()
-  const video = videos.find(v => v.slug === slug)
+  const video = videos.find(v => v.id === id)
 
   if (!video) return <p>Video not found</p>
 
